@@ -458,17 +458,40 @@
 
       materias.forEach((item) => {
         const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${item.nombre}</td>
-          <td>${item.area}</td>
-          <td>${item.creditos}</td>
-          <td>
-            <div class="actions">
-              <button type="button" class="secondary" data-edit="${item.id}">Editar</button>
-              <button type="button" class="danger" data-delete="${item.id}">Eliminar</button>
-            </div>
-          </td>
-        `;
+
+        const nombreCell = document.createElement('td');
+        nombreCell.textContent = item.nombre;
+        row.appendChild(nombreCell);
+
+        const areaCell = document.createElement('td');
+        areaCell.textContent = item.area;
+        row.appendChild(areaCell);
+
+        const creditosCell = document.createElement('td');
+        creditosCell.textContent = item.creditos;
+        row.appendChild(creditosCell);
+
+        const actionsCell = document.createElement('td');
+        const actions = document.createElement('div');
+        actions.classList.add('actions');
+
+        const editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.classList.add('secondary');
+        editButton.dataset.edit = item.id;
+        editButton.textContent = 'Editar';
+        actions.appendChild(editButton);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.classList.add('danger');
+        deleteButton.dataset.delete = item.id;
+        deleteButton.textContent = 'Eliminar';
+        actions.appendChild(deleteButton);
+
+        actionsCell.appendChild(actions);
+        row.appendChild(actionsCell);
+
         tablaBody.appendChild(row);
       });
 
