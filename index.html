@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seguimiento de Créditos - Contabilidad Pública</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --accent: #38bdf8;
+      --accent-2: #c084fc;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --success: #22c55e;
+      --warning: #fbbf24;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.1), transparent 25%),
+        radial-gradient(circle at 80% 10%, rgba(192, 132, 252, 0.1), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 32px 18px 48px;
+    }
+
+    h1, h2, h3 {
+      margin: 0 0 8px;
+      font-weight: 700;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.08), rgba(192, 132, 252, 0.05));
+      border: 1px solid rgba(226, 232, 240, 0.1);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(226, 232, 240, 0.08);
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      align-items: end;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--muted);
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(226, 232, 240, 0.15);
+      background: rgba(15, 23, 42, 0.7);
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    input[type="text"]:focus,
+    select:focus {
+      outline: 2px solid var(--accent);
+      border-color: var(--accent);
+    }
+
+    button {
+      border: none;
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.2s ease;
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #0b1224;
+      box-shadow: 0 10px 30px rgba(56, 189, 248, 0.35);
+    }
+
+    button.secondary {
+      background: rgba(226, 232, 240, 0.08);
+      color: var(--text);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    button.danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: #fecdd3;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .progress {
+      background: rgba(226, 232, 240, 0.08);
+      border-radius: 10px;
+      overflow: hidden;
+      height: 14px;
+      position: relative;
+    }
+
+    .progress .bar {
+      height: 100%;
+      width: 0;
+      border-radius: 10px;
+      transition: width 0.4s ease, background 0.4s ease;
+      background: var(--accent);
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 12px;
+      background: rgba(226, 232, 240, 0.08);
+      border: 1px solid rgba(226, 232, 240, 0.1);
+      color: var(--text);
+    }
+
+    .status-chip.complete {
+      background: rgba(34, 197, 94, 0.15);
+      color: #dcfce7;
+      border-color: rgba(34, 197, 94, 0.35);
+    }
+
+    .status-chip.warning {
+      background: rgba(251, 191, 36, 0.15);
+      color: #fef08a;
+      border-color: rgba(251, 191, 36, 0.35);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    thead {
+      background: rgba(226, 232, 240, 0.06);
+    }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(226, 232, 240, 0.02);
+    }
+
+    .actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .area-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+    }
+
+    .area-card {
+      padding: 14px;
+      border: 1px solid rgba(226, 232, 240, 0.1);
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.6);
+    }
+
+    .highlight {
+      color: #f8fafc;
+      font-weight: 800;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 22px 14px 36px;
+      }
+
+      th, td {
+        font-size: 14px;
+      }
+
+      button {
+        width: 100%;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="card">
+        <h1>Planificador de créditos</h1>
+        <p>Para estudiantes de Contabilidad Pública en Uruguay. Agrega materias, controla tus créditos por área y alcanza los mínimos sin perder el foco.</p>
+      </div>
+      <div class="card">
+        <h3>Objetivo general</h3>
+        <p><span class="highlight" id="total-creditos">0</span> / 360 créditos acumulados</p>
+        <p class="muted">Meta alcanzada cuando llegues a 360 créditos totales.</p>
+      </div>
+    </header>
+
+    <section class="panel">
+      <h2>Agregar o editar materia</h2>
+      <p class="muted">Las materias pueden sumar 5 o 10 créditos. Puedes editar o borrar cualquier entrada, todo queda guardado en tu navegador.</p>
+      <form id="materia-form">
+        <div class="form-grid">
+          <div>
+            <label for="nombre">Nombre de la materia</label>
+            <input id="nombre" name="nombre" type="text" placeholder="Ej: Contabilidad de Costos" required />
+          </div>
+          <div>
+            <label for="area">Área</label>
+            <select id="area" name="area" required>
+              <option value="">Selecciona un área</option>
+              <option value="Contabilidad">Contabilidad</option>
+              <option value="Juridica">Jurídica</option>
+              <option value="Investigacion">Investigación</option>
+              <option value="Administracion">Administración</option>
+              <option value="Economia">Economía</option>
+              <option value="Social">Social</option>
+              <option value="Metodos cuantitativos">Métodos cuantitativos</option>
+            </select>
+          </div>
+          <div>
+            <label for="creditos">Créditos</label>
+            <select id="creditos" name="creditos" required>
+              <option value="">Elige 5 o 10 créditos</option>
+              <option value="5">5 créditos</option>
+              <option value="10">10 créditos</option>
+            </select>
+          </div>
+          <div class="actions">
+            <button type="submit" class="primary" id="submit-btn">Agregar materia</button>
+            <button type="button" class="secondary" id="cancel-edit" style="display: none;">Cancelar</button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="progress-label">
+        <div>
+          <strong>Progreso total</strong>
+          <span class="muted" id="estado-general"></span>
+        </div>
+        <span class="status-chip" id="chip-total">En curso</span>
+      </div>
+      <div class="progress" aria-label="Progreso total de créditos">
+        <div class="bar" id="barra-total"></div>
+      </div>
+      <p class="muted" id="detalle-total"></p>
+    </section>
+
+    <section class="panel">
+      <h3>Créditos por área</h3>
+      <div class="area-grid" id="areas"></div>
+    </section>
+
+    <section class="panel">
+      <div class="progress-label">
+        <strong>Materias registradas</strong>
+        <span class="muted" id="contador-materias"></span>
+      </div>
+      <div class="table-wrapper">
+        <table aria-label="Lista de materias">
+          <thead>
+            <tr>
+              <th>Materia</th>
+              <th>Área</th>
+              <th>Créditos</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-materias"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const AREAS = {
+      Contabilidad: 130,
+      Juridica: 40,
+      Investigacion: 20,
+      Administracion: 50,
+      Economia: 30,
+      Social: 10,
+      'Metodos cuantitativos': 40,
+    };
+
+    const TOTAL_META = 360;
+    const STORAGE_KEY = 'materiasContabilidadPublica';
+
+    const form = document.getElementById('materia-form');
+    const nombreInput = document.getElementById('nombre');
+    const areaInput = document.getElementById('area');
+    const creditosInput = document.getElementById('creditos');
+    const tablaBody = document.getElementById('tabla-materias');
+    const contadorMaterias = document.getElementById('contador-materias');
+    const totalCreditos = document.getElementById('total-creditos');
+    const barraTotal = document.getElementById('barra-total');
+    const chipTotal = document.getElementById('chip-total');
+    const detalleTotal = document.getElementById('detalle-total');
+    const estadoGeneral = document.getElementById('estado-general');
+    const areasContainer = document.getElementById('areas');
+    const submitBtn = document.getElementById('submit-btn');
+    const cancelEditBtn = document.getElementById('cancel-edit');
+
+    let materias = [];
+    let editingId = null;
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const nombre = nombreInput.value.trim();
+      const area = areaInput.value;
+      const creditos = Number(creditosInput.value);
+
+      if (!nombre || !area || ![5, 10].includes(creditos)) {
+        alert('Completa todos los campos y elige 5 o 10 créditos.');
+        return;
+      }
+
+      if (editingId) {
+        materias = materias.map((item) =>
+          item.id === editingId ? { ...item, nombre, area, creditos } : item
+        );
+      } else {
+        const id = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`;
+        materias.push({ id, nombre, area, creditos });
+      }
+
+      saveMaterias();
+      resetForm();
+      render();
+    });
+
+    cancelEditBtn.addEventListener('click', () => {
+      resetForm();
+    });
+
+    function resetForm() {
+      form.reset();
+      editingId = null;
+      submitBtn.textContent = 'Agregar materia';
+      cancelEditBtn.style.display = 'none';
+    }
+
+    function editMateria(id) {
+      const materia = materias.find((item) => item.id === id);
+      if (!materia) return;
+      editingId = id;
+      nombreInput.value = materia.nombre;
+      areaInput.value = materia.area;
+      creditosInput.value = materia.creditos;
+      submitBtn.textContent = 'Actualizar materia';
+      cancelEditBtn.style.display = 'inline-flex';
+    }
+
+    function deleteMateria(id) {
+      if (!confirm('¿Seguro que deseas eliminar esta materia?')) return;
+      materias = materias.filter((item) => item.id !== id);
+      saveMaterias();
+      render();
+      resetForm();
+    }
+
+    function saveMaterias() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(materias));
+    }
+
+    function loadMaterias() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      materias = stored ? JSON.parse(stored) : [];
+    }
+
+    function render() {
+      renderTabla();
+      renderTotal();
+      renderAreas();
+    }
+
+    function renderTabla() {
+      tablaBody.innerHTML = '';
+      if (!materias.length) {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 4;
+        cell.textContent = 'Agrega tu primera materia para ver el progreso.';
+        cell.classList.add('muted');
+        row.appendChild(cell);
+        tablaBody.appendChild(row);
+        contadorMaterias.textContent = '0 materias registradas';
+        return;
+      }
+
+      materias.forEach((item) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${item.nombre}</td>
+          <td>${item.area}</td>
+          <td>${item.creditos}</td>
+          <td>
+            <div class="actions">
+              <button type="button" class="secondary" data-edit="${item.id}">Editar</button>
+              <button type="button" class="danger" data-delete="${item.id}">Eliminar</button>
+            </div>
+          </td>
+        `;
+        tablaBody.appendChild(row);
+      });
+
+      tablaBody.querySelectorAll('[data-edit]').forEach((btn) =>
+        btn.addEventListener('click', () => editMateria(btn.dataset.edit))
+      );
+      tablaBody.querySelectorAll('[data-delete]').forEach((btn) =>
+        btn.addEventListener('click', () => deleteMateria(btn.dataset.delete))
+      );
+
+      const materiaText = materias.length === 1 ? 'materia' : 'materias';
+      contadorMaterias.textContent = `${materias.length} ${materiaText} registradas`;
+    }
+
+    function renderTotal() {
+      const total = materias.reduce((sum, item) => sum + item.creditos, 0);
+      totalCreditos.textContent = total;
+      const porcentaje = Math.min(100, Math.round((total / TOTAL_META) * 100));
+      barraTotal.style.width = `${porcentaje}%`;
+
+      const { colorClass, chipText } = totalStatus(total);
+      barraTotal.style.background = colorClass;
+      chipTotal.textContent = chipText;
+      chipTotal.className = 'status-chip' + (total >= TOTAL_META ? ' complete' : '');
+
+      const restantes = Math.max(0, TOTAL_META - total);
+      estadoGeneral.textContent = `Faltan ${restantes} créditos para la meta general`;
+      detalleTotal.textContent = total >= TOTAL_META
+        ? '¡Meta general cumplida! Puedes sumar más créditos para mejorar tu historial.'
+        : `Llevas ${total} créditos. El próximo cambio de color sucede a los ${nextUmbral(total)} créditos.`;
+    }
+
+    function totalStatus(total) {
+      if (total >= 360) return { colorClass: 'var(--success)', chipText: 'Meta general cumplida' };
+      if (total >= 270) return { colorClass: '#22d3ee', chipText: 'Etapa 4: muy cerca' };
+      if (total >= 180) return { colorClass: '#c084fc', chipText: 'Etapa 3: buen ritmo' };
+      if (total >= 90) return { colorClass: '#f59e0b', chipText: 'Etapa 2: vas avanzando' };
+      return { colorClass: 'var(--accent)', chipText: 'Etapa 1: inicio' };
+    }
+
+    function nextUmbral(total) {
+      if (total < 90) return 90;
+      if (total < 180) return 180;
+      if (total < 270) return 270;
+      if (total < 360) return 360;
+      return 'nuevos logros';
+    }
+
+    function renderAreas() {
+      areasContainer.innerHTML = '';
+      const acumulados = materias.reduce((acc, item) => {
+        acc[item.area] = (acc[item.area] || 0) + item.creditos;
+        return acc;
+      }, {});
+
+      Object.entries(AREAS).forEach(([area, minimo]) => {
+        const obtenido = acumulados[area] || 0;
+        const porcentaje = Math.min(100, Math.round((obtenido / minimo) * 100));
+        const cumplido = obtenido >= minimo;
+        const restante = Math.max(0, minimo - obtenido);
+
+        const card = document.createElement('div');
+        card.className = 'area-card';
+        card.innerHTML = `
+          <div class="progress-label">
+            <span><strong>${area}</strong> · meta ${minimo} créditos</span>
+            <span class="status-chip ${cumplido ? 'complete' : 'warning'}">${cumplido ? 'Meta cumplida' : 'En curso'}</span>
+          </div>
+          <div class="progress" aria-label="Progreso en ${area}">
+            <div class="bar" style="width:${porcentaje}%; background:${cumplido ? 'var(--success)' : 'var(--accent-2)'}"></div>
+          </div>
+          <p class="muted">${obtenido} créditos acumulados · ${restante ? `faltan ${restante}` : 'objetivo alcanzado'}.</p>
+        `;
+        areasContainer.appendChild(card);
+      });
+    }
+
+    loadMaterias();
+    render();
+  </script>
+</body>
+</html>
