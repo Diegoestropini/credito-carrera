@@ -278,6 +278,34 @@
       border: 1px solid var(--line);
       color: var(--text);
       white-space: nowrap;
+      transition:
+        background 0.35s ease,
+        border-color 0.35s ease,
+        color 0.35s ease,
+        box-shadow 0.35s ease,
+        text-shadow 0.35s ease;
+    }
+
+    .status-chip.dynamic-stage {
+      color: var(--stage-color, var(--text));
+      border-color: color-mix(in srgb, var(--stage-color, var(--text)) 44%, rgba(255, 255, 255, 0.08));
+      background:
+        linear-gradient(180deg,
+          color-mix(in srgb, var(--stage-color, var(--text)) 28%, rgba(255, 255, 255, 0.04)),
+          color-mix(in srgb, var(--stage-color, var(--text)) 16%, rgba(2, 8, 23, 0.2))
+        );
+      box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--stage-color, var(--text)) 16%, transparent),
+        0 0 18px color-mix(in srgb, var(--stage-color, var(--text)) 34%, transparent);
+      text-shadow: 0 0 14px color-mix(in srgb, var(--stage-color, var(--text)) 45%, transparent);
+    }
+
+    .status-chip.dynamic-stage.header-stage {
+      box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--stage-color, var(--text)) 22%, transparent),
+        0 0 26px color-mix(in srgb, var(--stage-color, var(--text)) 44%, transparent),
+        inset 0 0 18px color-mix(in srgb, var(--stage-color, var(--text)) 12%, transparent);
+      text-shadow: 0 0 16px color-mix(in srgb, var(--stage-color, var(--text)) 56%, transparent);
     }
 
     .status-chip.complete {
@@ -859,9 +887,9 @@
       totalCreditos.style.color = colorClass;
       barraTotal.style.background = colorClass;
       chipTotal.textContent = chipText;
-      chipTotal.className = 'status-chip' + (total >= TOTAL_META ? ' complete' : '');
+      applyTotalChipStyle(chipTotal, colorClass, total >= TOTAL_META);
       chipTotalHeader.textContent = chipText;
-      chipTotalHeader.className = 'status-chip' + (total >= TOTAL_META ? ' complete' : '');
+      applyTotalChipStyle(chipTotalHeader, colorClass, total >= TOTAL_META, true);
 
       const restantes = Math.max(0, TOTAL_META - total);
       estadoGeneral.textContent = `Faltan ${restantes} creditos para la meta general`;
@@ -871,6 +899,20 @@
       detalleTotal.textContent = total >= TOTAL_META
         ? 'Meta general cumplida. Puedes sumar mas creditos para mejorar tu historial.'
         : `Llevas ${total} creditos. El proximo cambio de color sucede a los ${nextUmbral(total)} creditos.`;
+    }
+
+    function applyTotalChipStyle(element, color, isComplete, isHeader = false) {
+      element.className = 'status-chip';
+      element.style.removeProperty('--stage-color');
+
+      if (isComplete) {
+        element.classList.add('complete');
+        return;
+      }
+
+      element.classList.add('dynamic-stage');
+      if (isHeader) element.classList.add('header-stage');
+      element.style.setProperty('--stage-color', color);
     }
 
     function totalStatus(total) {
