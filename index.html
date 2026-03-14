@@ -84,6 +84,15 @@
       backdrop-filter: blur(14px);
     }
 
+    .panel-materias {
+      background:
+        radial-gradient(circle at top left, rgba(251, 191, 36, 0.12), transparent 34%),
+        radial-gradient(circle at 88% 18%, rgba(244, 114, 182, 0.12), transparent 30%),
+        linear-gradient(180deg, rgba(59, 32, 24, 0.92), rgba(27, 18, 24, 0.95));
+      border-color: rgba(251, 191, 36, 0.18);
+      box-shadow: 0 20px 55px rgba(21, 11, 13, 0.34);
+    }
+
     .eyebrow {
       display: inline-flex;
       align-items: center;
@@ -274,6 +283,57 @@
       border-radius: 16px;
       border: 1px solid rgba(148, 163, 184, 0.1);
       background: rgba(7, 17, 31, 0.32);
+    }
+
+    .section-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 132px;
+    }
+
+    .panel-materias .section-toggle {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(249, 115, 22, 0.18));
+      border-color: rgba(251, 191, 36, 0.24);
+      color: #fff2d7;
+      box-shadow: 0 10px 24px rgba(83, 40, 18, 0.22);
+    }
+
+    .panel-materias .section-toggle:hover {
+      box-shadow: 0 14px 30px rgba(83, 40, 18, 0.3);
+    }
+
+    .collapsible-content {
+      display: none;
+    }
+
+    .collapsible-content.open {
+      display: block;
+    }
+
+    .materias-copy {
+      color: #f6d7c6;
+    }
+
+    .panel-materias .muted {
+      color: #e8c3b0;
+    }
+
+    .panel-materias .table-wrapper {
+      border-color: rgba(251, 191, 36, 0.12);
+      background: rgba(60, 31, 27, 0.42);
+    }
+
+    .panel-materias thead {
+      background: rgba(251, 191, 36, 0.12);
+    }
+
+    .panel-materias tbody tr:nth-child(odd) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .panel-materias tbody tr:hover {
+      background: rgba(251, 191, 36, 0.08);
     }
 
     table {
@@ -503,26 +563,31 @@
       <div class="area-grid" id="areas"></div>
     </section>
 
-    <section class="panel">
+    <section class="panel panel-materias">
       <div class="section-head">
         <div>
           <strong>Materias registradas</strong>
-          <p>Lista completa con acceso rapido a edicion y eliminacion.</p>
         </div>
-        <span class="muted" id="contador-materias"></span>
+        <button type="button" class="secondary section-toggle" id="toggle-materias" style="display: none;">Mostrar mas</button>
       </div>
-      <div class="table-wrapper">
-        <table aria-label="Lista de materias">
-          <thead>
-            <tr>
-              <th>Materia</th>
-              <th>Area</th>
-              <th>Creditos</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="tabla-materias"></tbody>
-        </table>
+      <div class="collapsible-content" id="materias-contenido">
+        <p class="materias-copy">Lista completa con acceso rapido a edicion y eliminacion.</p>
+        <div class="section-head" style="margin-top: 12px; margin-bottom: 12px;">
+          <span class="muted" id="contador-materias"></span>
+        </div>
+        <div class="table-wrapper">
+          <table aria-label="Lista de materias">
+            <thead>
+              <tr>
+                <th>Materia</th>
+                <th>Area</th>
+                <th>Creditos</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-materias"></tbody>
+          </table>
+        </div>
       </div>
     </section>
   </div>
@@ -576,9 +641,12 @@
     const areasContainer = document.getElementById('areas');
     const submitBtn = document.getElementById('submit-btn');
     const cancelEditBtn = document.getElementById('cancel-edit');
+    const toggleMateriasBtn = document.getElementById('toggle-materias');
+    const materiasContenido = document.getElementById('materias-contenido');
 
     let materias = [];
     let editingId = null;
+    let materiasExpanded = false;
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
@@ -607,6 +675,11 @@
 
     cancelEditBtn.addEventListener('click', () => {
       resetForm();
+    });
+
+    toggleMateriasBtn.addEventListener('click', () => {
+      materiasExpanded = !materiasExpanded;
+      updateMateriasVisibility();
     });
 
     function resetForm() {
@@ -656,11 +729,21 @@
       renderTabla();
       renderTotal();
       renderAreas();
+      updateMateriasVisibility();
+    }
+
+    function updateMateriasVisibility() {
+      const hasMaterias = materias.length > 0;
+      toggleMateriasBtn.style.display = hasMaterias ? 'inline-flex' : 'none';
+      materiasContenido.classList.toggle('open', hasMaterias && materiasExpanded);
+      toggleMateriasBtn.textContent = materiasExpanded ? 'Mostrar menos' : 'Mostrar mas';
+      toggleMateriasBtn.setAttribute('aria-expanded', hasMaterias && materiasExpanded ? 'true' : 'false');
     }
 
     function renderTabla() {
       tablaBody.innerHTML = '';
       if (!materias.length) {
+        materiasExpanded = false;
         const row = document.createElement('tr');
         const cell = document.createElement('td');
         cell.colSpan = 4;
