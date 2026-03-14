@@ -623,9 +623,11 @@
 
     const AREA_ALIASES = {
       [AREA_HUMANISTICAS]: AREA_HUMANISTICAS,
+      'CIENCIAS SOCIALES Y HUMANISTICAS': AREA_HUMANISTICAS,
       'CIENCIAS SOCIALES Y HUMANÍSTICAS': AREA_HUMANISTICAS,
       'CIENCIAS SOCIALES Y HUMANÃSTICAS': AREA_HUMANISTICAS,
       'CIENCIAS SOCIALES Y HUMANÃƒÂSTICAS': AREA_HUMANISTICAS,
+      'CIENCIAS SOCIALES Y HUMANÃƒÆ’Ã‚ÂSTICAS': AREA_HUMANISTICAS,
     };
 
     const AREAS = {
@@ -748,7 +750,18 @@
 
     function loadMaterias() {
       const stored = localStorage.getItem(STORAGE_KEY);
-      materias = stored ? JSON.parse(stored) : [];
+      if (!stored) {
+        materias = [];
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(stored);
+        materias = Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        console.warn('No se pudieron cargar las materias guardadas.', error);
+        materias = [];
+      }
     }
 
     function render() {
@@ -783,17 +796,45 @@
 
       materias.forEach((item) => {
         const row = document.createElement('tr');
-        row.innerHTML = `
-          <td data-label="Materia">${item.nombre}</td>
-          <td data-label="Area">${getAreaLabel(item.area)}</td>
-          <td data-label="Creditos">${item.creditos}</td>
-          <td data-label="Acciones">
-            <div class="actions">
-              <button type="button" class="secondary" data-edit="${item.id}">Editar</button>
-              <button type="button" class="danger" data-delete="${item.id}">Eliminar</button>
-            </div>
-          </td>
-        `;
+
+        const nombreCell = document.createElement('td');
+        nombreCell.setAttribute('data-label', 'Materia');
+        nombreCell.textContent = item.nombre;
+
+        const areaCell = document.createElement('td');
+        areaCell.setAttribute('data-label', 'Area');
+        areaCell.textContent = getAreaLabel(item.area);
+
+        const creditosCell = document.createElement('td');
+        creditosCell.setAttribute('data-label', 'Creditos');
+        creditosCell.textContent = String(item.creditos);
+
+        const accionesCell = document.createElement('td');
+        accionesCell.setAttribute('data-label', 'Acciones');
+
+        const actions = document.createElement('div');
+        actions.className = 'actions';
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.className = 'secondary';
+        editBtn.dataset.edit = item.id;
+        editBtn.textContent = 'Editar';
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.className = 'danger';
+        deleteBtn.dataset.delete = item.id;
+        deleteBtn.textContent = 'Eliminar';
+
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+        accionesCell.appendChild(actions);
+
+        row.appendChild(nombreCell);
+        row.appendChild(areaCell);
+        row.appendChild(creditosCell);
+        row.appendChild(accionesCell);
         tablaBody.appendChild(row);
       });
 
@@ -864,16 +905,40 @@
 
         const card = document.createElement('div');
         card.className = 'area-card';
-        card.innerHTML = `
-          <div class="progress-label">
-            <span><strong>${getAreaLabel(area)}</strong> · meta ${minimo} creditos</span>
-            <span class="status-chip ${cumplido ? 'complete' : 'warning'}">${cumplido ? 'Meta cumplida' : 'En curso'}</span>
-          </div>
-          <div class="progress" aria-label="Progreso en ${getAreaLabel(area)}">
-            <div class="bar" style="width:${porcentaje}%; background:${cumplido ? 'var(--success)' : 'var(--accent-2)'}"></div>
-          </div>
-          <p class="muted">${obtenido} creditos acumulados · ${restante ? `faltan ${restante}` : 'objetivo alcanzado'}.</p>
-        `;
+
+        const progressLabel = document.createElement('div');
+        progressLabel.className = 'progress-label';
+
+        const title = document.createElement('span');
+        const titleStrong = document.createElement('strong');
+        titleStrong.textContent = getAreaLabel(area);
+        title.appendChild(titleStrong);
+        title.appendChild(document.createTextNode(` · meta ${minimo} creditos`));
+
+        const chip = document.createElement('span');
+        chip.className = `status-chip ${cumplido ? 'complete' : 'warning'}`;
+        chip.textContent = cumplido ? 'Meta cumplida' : 'En curso';
+
+        progressLabel.appendChild(title);
+        progressLabel.appendChild(chip);
+
+        const progress = document.createElement('div');
+        progress.className = 'progress';
+        progress.setAttribute('aria-label', `Progreso en ${getAreaLabel(area)}`);
+
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.width = `${porcentaje}%`;
+        bar.style.background = cumplido ? 'var(--success)' : 'var(--accent-2)';
+        progress.appendChild(bar);
+
+        const detail = document.createElement('p');
+        detail.className = 'muted';
+        detail.textContent = `${obtenido} creditos acumulados · ${restante ? `faltan ${restante}` : 'objetivo alcanzado'}.`;
+
+        card.appendChild(progressLabel);
+        card.appendChild(progress);
+        card.appendChild(detail);
         areasContainer.appendChild(card);
       });
     }
