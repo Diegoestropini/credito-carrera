@@ -3,18 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Seguimiento de Créditos - Contabilidad Pública</title>
+  <title>Seguimiento de Creditos - Contabilidad Publica</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --panel: #1e293b;
+      --bg: #07111f;
+      --panel: rgba(12, 24, 40, 0.88);
+      --panel-strong: rgba(10, 20, 34, 0.96);
+      --card-top: rgba(36, 99, 235, 0.18);
+      --card-bottom: rgba(14, 165, 233, 0.08);
       --accent: #38bdf8;
-      --accent-2: #c084fc;
-      --text: #e2e8f0;
-      --muted: #94a3b8;
+      --accent-2: #0ea5e9;
+      --text: #e6edf7;
+      --muted: #a9b7cb;
+      --line: rgba(148, 163, 184, 0.16);
       --success: #22c55e;
-      --warning: #fbbf24;
+      --warning: #f59e0b;
       --danger: #ef4444;
+      --shadow: 0 24px 70px rgba(2, 8, 23, 0.38);
     }
 
     * {
@@ -23,18 +28,21 @@
 
     body {
       margin: 0;
-      font-family: "Inter", system-ui, -apple-system, sans-serif;
-      background: radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.1), transparent 25%),
-        radial-gradient(circle at 80% 10%, rgba(192, 132, 252, 0.1), transparent 30%),
-        var(--bg);
+      font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.13), transparent 32%),
+        radial-gradient(circle at 85% 12%, rgba(14, 165, 233, 0.1), transparent 28%),
+        linear-gradient(180deg, #0b1628 0%, var(--bg) 55%, #050b14 100%);
       color: var(--text);
       min-height: 100vh;
       padding: 32px 18px 48px;
+      line-height: 1.45;
     }
 
     h1, h2, h3 {
       margin: 0 0 8px;
       font-weight: 700;
+      letter-spacing: -0.03em;
     }
 
     p {
@@ -43,85 +51,141 @@
     }
 
     .container {
-      max-width: 1100px;
+      max-width: 1180px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 22px;
     }
 
     header {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
+      grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.95fr);
+      gap: 18px;
     }
 
     .card {
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.08), rgba(192, 132, 252, 0.05));
-      border: 1px solid rgba(226, 232, 240, 0.1);
-      border-radius: 14px;
-      padding: 18px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      background:
+        linear-gradient(180deg, var(--card-top), var(--card-bottom)),
+        var(--panel-strong);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
     }
 
     .panel {
       background: var(--panel);
-      border: 1px solid rgba(226, 232, 240, 0.08);
-      border-radius: 12px;
-      padding: 18px;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 18px 50px rgba(2, 8, 23, 0.26);
+      backdrop-filter: blur(14px);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      margin-bottom: 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      background: rgba(56, 189, 248, 0.08);
+      color: #d7effe;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .hero-title {
+      font-size: clamp(2rem, 4vw, 3.1rem);
+      line-height: 1.02;
+      margin-bottom: 14px;
+      max-width: 10ch;
+    }
+
+    .hero-copy {
+      max-width: 58ch;
+      font-size: 15px;
+    }
+
+    .summary-value {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin: 14px 0 8px;
+      flex-wrap: wrap;
+    }
+
+    .summary-value .highlight {
+      font-size: clamp(2.2rem, 4vw, 3rem);
+      line-height: 1;
+    }
+
+    .summary-meta {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
     }
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
       align-items: end;
     }
 
     label {
       display: block;
       font-weight: 600;
-      margin-bottom: 6px;
+      font-size: 13px;
+      margin-bottom: 8px;
       color: var(--muted);
+      letter-spacing: 0.01em;
     }
 
     input[type="text"],
     select {
       width: 100%;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid rgba(226, 232, 240, 0.15);
-      background: rgba(15, 23, 42, 0.7);
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(8, 15, 28, 0.78);
       color: var(--text);
       font-size: 14px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
     }
 
     input[type="text"]:focus,
     select:focus {
-      outline: 2px solid var(--accent);
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.16);
       border-color: var(--accent);
+      background: rgba(8, 15, 28, 0.96);
     }
 
     button {
       border: none;
-      padding: 11px 14px;
-      border-radius: 10px;
+      padding: 12px 15px;
+      border-radius: 12px;
       font-weight: 700;
       cursor: pointer;
-      transition: transform 0.1s ease, box-shadow 0.2s ease;
+      transition: transform 0.14s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
     }
 
     button.primary {
       background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: #0b1224;
-      box-shadow: 0 10px 30px rgba(56, 189, 248, 0.35);
+      color: #03101d;
+      box-shadow: 0 14px 34px rgba(14, 165, 233, 0.28);
     }
 
     button.secondary {
-      background: rgba(226, 232, 240, 0.08);
+      background: rgba(148, 163, 184, 0.08);
       color: var(--text);
-      border: 1px solid rgba(148, 163, 184, 0.2);
+      border: 1px solid var(--line);
     }
 
     button.danger {
@@ -132,6 +196,7 @@
 
     button:hover {
       transform: translateY(-1px);
+      box-shadow: 0 10px 26px rgba(2, 8, 23, 0.24);
     }
 
     .muted {
@@ -140,26 +205,29 @@
     }
 
     .progress {
-      background: rgba(226, 232, 240, 0.08);
-      border-radius: 10px;
+      background: rgba(148, 163, 184, 0.1);
+      border-radius: 999px;
       overflow: hidden;
-      height: 14px;
+      height: 16px;
       position: relative;
+      border: 1px solid rgba(148, 163, 184, 0.08);
     }
 
     .progress .bar {
       height: 100%;
       width: 0;
-      border-radius: 10px;
+      border-radius: 999px;
       transition: width 0.4s ease, background 0.4s ease;
       background: var(--accent);
+      box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.16);
     }
 
     .progress-label {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 6px;
+      gap: 14px;
+      margin-bottom: 10px;
       font-weight: 600;
     }
 
@@ -171,9 +239,10 @@
       border-radius: 999px;
       font-weight: 600;
       font-size: 12px;
-      background: rgba(226, 232, 240, 0.08);
-      border: 1px solid rgba(226, 232, 240, 0.1);
+      background: rgba(148, 163, 184, 0.1);
+      border: 1px solid var(--line);
       color: var(--text);
+      white-space: nowrap;
     }
 
     .status-chip.complete {
@@ -183,9 +252,28 @@
     }
 
     .status-chip.warning {
-      background: rgba(251, 191, 36, 0.15);
-      color: #fef08a;
-      border-color: rgba(251, 191, 36, 0.35);
+      background: rgba(245, 158, 11, 0.15);
+      color: #fde68a;
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .section-head p {
+      max-width: 60ch;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.1);
+      background: rgba(7, 17, 31, 0.32);
     }
 
     table {
@@ -194,34 +282,66 @@
     }
 
     th, td {
-      padding: 10px 12px;
+      padding: 14px 12px;
       text-align: left;
     }
 
     thead {
-      background: rgba(226, 232, 240, 0.06);
+      background: rgba(148, 163, 184, 0.08);
+    }
+
+    th {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #d3deec;
+    }
+
+    tbody tr {
+      border-top: 1px solid rgba(148, 163, 184, 0.08);
+      transition: background 0.2s ease;
     }
 
     tbody tr:nth-child(odd) {
-      background: rgba(226, 232, 240, 0.02);
+      background: rgba(148, 163, 184, 0.03);
+    }
+
+    tbody tr:hover {
+      background: rgba(56, 189, 248, 0.06);
+    }
+
+    td:nth-child(3),
+    th:nth-child(3) {
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    td:last-child,
+    th:last-child {
+      text-align: right;
     }
 
     .actions {
       display: flex;
       gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .area-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
     }
 
     .area-card {
-      padding: 14px;
-      border: 1px solid rgba(226, 232, 240, 0.1);
-      border-radius: 12px;
-      background: rgba(15, 23, 42, 0.6);
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background:
+        linear-gradient(180deg, rgba(56, 189, 248, 0.06), transparent 32%),
+        rgba(7, 17, 31, 0.56);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
     }
 
     .highlight {
@@ -229,13 +349,31 @@
       font-weight: 800;
     }
 
+    .empty-state {
+      padding: 26px 12px;
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      header {
+        grid-template-columns: 1fr;
+      }
+    }
+
     @media (max-width: 600px) {
       body {
         padding: 22px 14px 36px;
       }
 
-      th, td {
-        font-size: 14px;
+      .panel,
+      .card {
+        padding: 18px;
+      }
+
+      .section-head,
+      .progress-label {
+        flex-direction: column;
+        align-items: flex-start;
       }
 
       button {
@@ -244,6 +382,39 @@
 
       .actions {
         flex-direction: column;
+        justify-content: stretch;
+      }
+
+      thead {
+        display: none;
+      }
+
+      table,
+      tbody,
+      tr,
+      td {
+        display: block;
+        width: 100%;
+      }
+
+      tbody tr {
+        padding: 12px;
+      }
+
+      td {
+        padding: 7px 0;
+        text-align: left !important;
+      }
+
+      td::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: 4px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
       }
     }
   </style>
@@ -252,19 +423,27 @@
   <div class="container">
     <header>
       <div class="card">
-        <h1>Planificador de créditos</h1>
-        <p>Para estudiantes de Contabilidad Pública en Uruguay. Agrega materias, controla tus créditos por área y alcanza los mínimos sin perder el foco.</p>
+        <span class="eyebrow">Contabilidad Publica</span>
+        <h1 class="hero-title">Planificador de creditos</h1>
+        <p class="hero-copy">Para estudiantes de Contabilidad Publica en Uruguay. Agrega materias, controla tus creditos por area y visualiza rapido cuanto te falta para cumplir cada meta.</p>
       </div>
       <div class="card">
         <h3>Objetivo general</h3>
-        <p><span class="highlight" id="total-creditos">0</span> / 360 créditos acumulados</p>
-        <p class="muted">Meta alcanzada cuando llegues a 360 créditos totales.</p>
+        <div class="summary-value">
+          <span class="highlight" id="total-creditos">0</span>
+          <span class="muted">de 360 creditos acumulados</span>
+        </div>
+        <p class="muted">La meta general se cumple al llegar a 360 creditos totales.</p>
+        <div class="summary-meta">
+          <span class="status-chip" id="chip-total-header">En curso</span>
+          <p class="muted" id="estado-general-header">Aun no registraste materias.</p>
+        </div>
       </div>
     </header>
 
     <section class="panel">
       <h2>Agregar o editar materia</h2>
-      <p class="muted">Las materias pueden sumar 5 o 10 créditos. Puedes editar o borrar cualquier entrada, todo queda guardado en tu navegador.</p>
+      <p class="muted">Las materias pueden sumar 5 o 10 creditos. Puedes editar o borrar cualquier entrada, todo queda guardado en tu navegador.</p>
       <form id="materia-form">
         <div class="form-grid">
           <div>
@@ -272,24 +451,24 @@
             <input id="nombre" name="nombre" type="text" placeholder="Ej: Contabilidad de Costos" required />
           </div>
           <div>
-            <label for="area">Área</label>
+            <label for="area">Area</label>
             <select id="area" name="area" required>
-              <option value="">Selecciona un área</option>
+              <option value="">Selecciona un area</option>
               <option value="Contabilidad">Contabilidad</option>
-              <option value="Juridica">Jurídica</option>
+              <option value="Juridica">Juridica</option>
               <option value="Actividades integradoras">Actividades integradoras</option>
-              <option value="Administracion">Administración</option>
-              <option value="Economia">Economía</option>
-              <option value="CIENCIAS SOCIALES Y HUMANÍSTICAS">CIENCIAS SOCIALES Y HUMANÍSTICAS</option>
-              <option value="Metodos cuantitativos">Métodos cuantitativos</option>
+              <option value="Administracion">Administracion</option>
+              <option value="Economia">Economia</option>
+              <option value="CIENCIAS SOCIALES Y HUMANISTICAS">Ciencias sociales y humanisticas</option>
+              <option value="Metodos cuantitativos">Metodos cuantitativos</option>
             </select>
           </div>
           <div>
-            <label for="creditos">Créditos</label>
+            <label for="creditos">Creditos</label>
             <select id="creditos" name="creditos" required>
-              <option value="">Elige 5 o 10 créditos</option>
-              <option value="5">5 créditos</option>
-              <option value="10">10 créditos</option>
+              <option value="">Elige 5 o 10 creditos</option>
+              <option value="5">5 creditos</option>
+              <option value="10">10 creditos</option>
             </select>
           </div>
           <div class="actions">
@@ -308,20 +487,28 @@
         </div>
         <span class="status-chip" id="chip-total">En curso</span>
       </div>
-      <div class="progress" aria-label="Progreso total de créditos">
+      <div class="progress" aria-label="Progreso total de creditos">
         <div class="bar" id="barra-total"></div>
       </div>
       <p class="muted" id="detalle-total"></p>
     </section>
 
     <section class="panel">
-      <h3>Créditos por área</h3>
+      <div class="section-head">
+        <div>
+          <h3>Creditos por area</h3>
+          <p>Visualiza el avance minimo requerido en cada bloque de la carrera.</p>
+        </div>
+      </div>
       <div class="area-grid" id="areas"></div>
     </section>
 
     <section class="panel">
-      <div class="progress-label">
-        <strong>Materias registradas</strong>
+      <div class="section-head">
+        <div>
+          <strong>Materias registradas</strong>
+          <p>Lista completa con acceso rapido a edicion y eliminacion.</p>
+        </div>
         <span class="muted" id="contador-materias"></span>
       </div>
       <div class="table-wrapper">
@@ -329,8 +516,8 @@
           <thead>
             <tr>
               <th>Materia</th>
-              <th>Área</th>
-              <th>Créditos</th>
+              <th>Area</th>
+              <th>Creditos</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -341,14 +528,33 @@
   </div>
 
   <script>
+    const AREA_HUMANISTICAS = 'CIENCIAS SOCIALES Y HUMANISTICAS';
+
+    const AREA_ALIASES = {
+      [AREA_HUMANISTICAS]: AREA_HUMANISTICAS,
+      'CIENCIAS SOCIALES Y HUMANÍSTICAS': AREA_HUMANISTICAS,
+      'CIENCIAS SOCIALES Y HUMANÃSTICAS': AREA_HUMANISTICAS,
+      'CIENCIAS SOCIALES Y HUMANÃƒÂSTICAS': AREA_HUMANISTICAS,
+    };
+
     const AREAS = {
       Contabilidad: 130,
       Juridica: 40,
       'Actividades integradoras': 20,
       Administracion: 50,
       Economia: 30,
-      'CIENCIAS SOCIALES Y HUMANÍSTICAS': 10,
+      [AREA_HUMANISTICAS]: 10,
       'Metodos cuantitativos': 40,
+    };
+
+    const AREA_LABELS = {
+      Contabilidad: 'Contabilidad',
+      Juridica: 'Juridica',
+      'Actividades integradoras': 'Actividades integradoras',
+      Administracion: 'Administracion',
+      Economia: 'Economia',
+      [AREA_HUMANISTICAS]: 'Ciencias sociales y humanisticas',
+      'Metodos cuantitativos': 'Metodos cuantitativos',
     };
 
     const TOTAL_META = 360;
@@ -363,8 +569,10 @@
     const totalCreditos = document.getElementById('total-creditos');
     const barraTotal = document.getElementById('barra-total');
     const chipTotal = document.getElementById('chip-total');
+    const chipTotalHeader = document.getElementById('chip-total-header');
     const detalleTotal = document.getElementById('detalle-total');
     const estadoGeneral = document.getElementById('estado-general');
+    const estadoGeneralHeader = document.getElementById('estado-general-header');
     const areasContainer = document.getElementById('areas');
     const submitBtn = document.getElementById('submit-btn');
     const cancelEditBtn = document.getElementById('cancel-edit');
@@ -375,11 +583,11 @@
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       const nombre = nombreInput.value.trim();
-      const area = areaInput.value;
+      const area = normalizeArea(areaInput.value);
       const creditos = Number(creditosInput.value);
 
       if (!nombre || !area || ![5, 10].includes(creditos)) {
-        alert('Completa todos los campos y elige 5 o 10 créditos.');
+        alert('Completa todos los campos y elige 5 o 10 creditos.');
         return;
       }
 
@@ -408,19 +616,27 @@
       cancelEditBtn.style.display = 'none';
     }
 
+    function normalizeArea(area) {
+      return AREA_ALIASES[area] || area;
+    }
+
+    function getAreaLabel(area) {
+      return AREA_LABELS[normalizeArea(area)] || area;
+    }
+
     function editMateria(id) {
       const materia = materias.find((item) => item.id === id);
       if (!materia) return;
       editingId = id;
       nombreInput.value = materia.nombre;
-      areaInput.value = materia.area;
+      areaInput.value = normalizeArea(materia.area);
       creditosInput.value = materia.creditos;
       submitBtn.textContent = 'Actualizar materia';
       cancelEditBtn.style.display = 'inline-flex';
     }
 
     function deleteMateria(id) {
-      if (!confirm('¿Seguro que deseas eliminar esta materia?')) return;
+      if (!confirm('Seguro que deseas eliminar esta materia?')) return;
       materias = materias.filter((item) => item.id !== id);
       saveMaterias();
       render();
@@ -449,7 +665,7 @@
         const cell = document.createElement('td');
         cell.colSpan = 4;
         cell.textContent = 'Agrega tu primera materia para ver el progreso.';
-        cell.classList.add('muted');
+        cell.classList.add('muted', 'empty-state');
         row.appendChild(cell);
         tablaBody.appendChild(row);
         contadorMaterias.textContent = '0 materias registradas';
@@ -459,10 +675,10 @@
       materias.forEach((item) => {
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td>${item.nombre}</td>
-          <td>${item.area}</td>
-          <td>${item.creditos}</td>
-          <td>
+          <td data-label="Materia">${item.nombre}</td>
+          <td data-label="Area">${getAreaLabel(item.area)}</td>
+          <td data-label="Creditos">${item.creditos}</td>
+          <td data-label="Acciones">
             <div class="actions">
               <button type="button" class="secondary" data-edit="${item.id}">Editar</button>
               <button type="button" class="danger" data-delete="${item.id}">Eliminar</button>
@@ -493,19 +709,24 @@
       barraTotal.style.background = colorClass;
       chipTotal.textContent = chipText;
       chipTotal.className = 'status-chip' + (total >= TOTAL_META ? ' complete' : '');
+      chipTotalHeader.textContent = chipText;
+      chipTotalHeader.className = 'status-chip' + (total >= TOTAL_META ? ' complete' : '');
 
       const restantes = Math.max(0, TOTAL_META - total);
-      estadoGeneral.textContent = `Faltan ${restantes} créditos para la meta general`;
+      estadoGeneral.textContent = `Faltan ${restantes} creditos para la meta general`;
+      estadoGeneralHeader.textContent = total
+        ? `Llevas ${total} creditos registrados.`
+        : 'Aun no registraste materias.';
       detalleTotal.textContent = total >= TOTAL_META
-        ? '¡Meta general cumplida! Puedes sumar más créditos para mejorar tu historial.'
-        : `Llevas ${total} créditos. El próximo cambio de color sucede a los ${nextUmbral(total)} créditos.`;
+        ? 'Meta general cumplida. Puedes sumar mas creditos para mejorar tu historial.'
+        : `Llevas ${total} creditos. El proximo cambio de color sucede a los ${nextUmbral(total)} creditos.`;
     }
 
     function totalStatus(total) {
       if (total >= 360) return { colorClass: 'var(--success)', chipText: 'Meta general cumplida' };
-      if (total >= 270) return { colorClass: '#ff00ff', chipText: 'Etapa 4: tramo final' };
-      if (total >= 180) return { colorClass: '#f97316', chipText: 'Etapa 3: buen ritmo' };
-      if (total >= 90) return { colorClass: '#22d3ee', chipText: 'Etapa 2: vas avanzando' };
+      if (total >= 270) return { colorClass: '#2563eb', chipText: 'Etapa 4: tramo final' };
+      if (total >= 180) return { colorClass: '#0ea5e9', chipText: 'Etapa 3: buen ritmo' };
+      if (total >= 90) return { colorClass: '#38bdf8', chipText: 'Etapa 2: vas avanzando' };
       return { colorClass: 'var(--warning)', chipText: 'Etapa 1: inicio' };
     }
 
@@ -520,7 +741,8 @@
     function renderAreas() {
       areasContainer.innerHTML = '';
       const acumulados = materias.reduce((acc, item) => {
-        acc[item.area] = (acc[item.area] || 0) + item.creditos;
+        const area = normalizeArea(item.area);
+        acc[area] = (acc[area] || 0) + item.creditos;
         return acc;
       }, {});
 
@@ -534,13 +756,13 @@
         card.className = 'area-card';
         card.innerHTML = `
           <div class="progress-label">
-            <span><strong>${area}</strong> · meta ${minimo} créditos</span>
+            <span><strong>${getAreaLabel(area)}</strong> · meta ${minimo} creditos</span>
             <span class="status-chip ${cumplido ? 'complete' : 'warning'}">${cumplido ? 'Meta cumplida' : 'En curso'}</span>
           </div>
-          <div class="progress" aria-label="Progreso en ${area}">
+          <div class="progress" aria-label="Progreso en ${getAreaLabel(area)}">
             <div class="bar" style="width:${porcentaje}%; background:${cumplido ? 'var(--success)' : 'var(--accent-2)'}"></div>
           </div>
-          <p class="muted">${obtenido} créditos acumulados · ${restante ? `faltan ${restante}` : 'objetivo alcanzado'}.</p>
+          <p class="muted">${obtenido} creditos acumulados · ${restante ? `faltan ${restante}` : 'objetivo alcanzado'}.</p>
         `;
         areasContainer.appendChild(card);
       });
