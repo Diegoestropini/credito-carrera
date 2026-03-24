@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -652,10 +652,10 @@
     const AREA_ALIASES = {
       [AREA_HUMANISTICAS]: AREA_HUMANISTICAS,
       'CIENCIAS SOCIALES Y HUMANISTICAS': AREA_HUMANISTICAS,
-      'CIENCIAS SOCIALES Y HUMANÍSTICAS': AREA_HUMANISTICAS,
       'CIENCIAS SOCIALES Y HUMANÃSTICAS': AREA_HUMANISTICAS,
       'CIENCIAS SOCIALES Y HUMANÃƒÂSTICAS': AREA_HUMANISTICAS,
       'CIENCIAS SOCIALES Y HUMANÃƒÆ’Ã‚ÂSTICAS': AREA_HUMANISTICAS,
+      'CIENCIAS SOCIALES Y HUMANÃƒÆ’Ã†â€™Ãƒâ€šÃ‚ÂSTICAS': AREA_HUMANISTICAS,
     };
 
     const AREAS = {
@@ -772,12 +772,41 @@
       resetForm();
     }
 
+    function sanitizeMateria(item) {
+      if (!item || typeof item !== 'object') return null;
+
+      const nombre = typeof item.nombre === 'string' ? item.nombre.trim() : '';
+      const area = normalizeArea(typeof item.area === 'string' ? item.area : '');
+      const creditos = Number(item.creditos);
+      const rawId = item.id;
+      const id = typeof rawId === 'string' && rawId.trim() ? rawId : `${Date.now()}-${Math.random()}`;
+
+      if (!nombre || !area || ![5, 10].includes(creditos)) {
+        return null;
+      }
+
+      return { id, nombre, area, creditos };
+    }
+
     function saveMaterias() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(materias));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(materias));
+      } catch (error) {
+        console.warn('No se pudieron guardar las materias.', error);
+      }
     }
 
     function loadMaterias() {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      let stored = null;
+
+      try {
+        stored = localStorage.getItem(STORAGE_KEY);
+      } catch (error) {
+        console.warn('No se pudo acceder al almacenamiento local.', error);
+        materias = [];
+        return;
+      }
+
       if (!stored) {
         materias = [];
         return;
@@ -785,7 +814,9 @@
 
       try {
         const parsed = JSON.parse(stored);
-        materias = Array.isArray(parsed) ? parsed : [];
+        materias = Array.isArray(parsed)
+          ? parsed.map(sanitizeMateria).filter(Boolean)
+          : [];
       } catch (error) {
         console.warn('No se pudieron cargar las materias guardadas.', error);
         materias = [];
@@ -878,7 +909,7 @@
     }
 
     function renderTotal() {
-      const total = materias.reduce((sum, item) => sum + item.creditos, 0);
+      const total = materias.reduce((sum, item) => sum + Number(item.creditos || 0), 0);
       totalCreditos.textContent = total;
       const porcentaje = Math.min(100, Math.round((total / TOTAL_META) * 100));
       barraTotal.style.width = `${porcentaje}%`;
@@ -935,7 +966,7 @@
       areasContainer.innerHTML = '';
       const acumulados = materias.reduce((acc, item) => {
         const area = normalizeArea(item.area);
-        acc[area] = (acc[area] || 0) + item.creditos;
+        acc[area] = (acc[area] || 0) + Number(item.creditos || 0);
         return acc;
       }, {});
 
@@ -955,7 +986,7 @@
         const titleStrong = document.createElement('strong');
         titleStrong.textContent = getAreaLabel(area);
         title.appendChild(titleStrong);
-        title.appendChild(document.createTextNode(` · meta ${minimo} creditos`));
+        title.appendChild(document.createTextNode(` - meta ${minimo} creditos`));
 
         const chip = document.createElement('span');
         chip.className = `status-chip ${cumplido ? 'complete' : 'warning'}`;
@@ -976,7 +1007,7 @@
 
         const detail = document.createElement('p');
         detail.className = 'muted';
-        detail.textContent = `${obtenido} creditos acumulados · ${restante ? `faltan ${restante}` : 'objetivo alcanzado'}.`;
+        detail.textContent = `${obtenido} creditos acumulados - ${restante ? `faltan ${restante}` : 'objetivo alcanzado'}.`;
 
         card.appendChild(progressLabel);
         card.appendChild(progress);
