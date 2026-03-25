@@ -832,8 +832,9 @@
 
     function updateMateriasVisibility() {
       const hasMaterias = materias.length > 0;
+      const shouldShowContent = !hasMaterias || materiasExpanded;
       toggleMateriasBtn.style.display = hasMaterias ? 'inline-flex' : 'none';
-      materiasContenido.classList.toggle('open', hasMaterias && materiasExpanded);
+      materiasContenido.classList.toggle('open', shouldShowContent);
       toggleMateriasBtn.textContent = materiasExpanded ? 'Mostrar menos' : 'Mostrar mas';
       toggleMateriasBtn.setAttribute('aria-expanded', hasMaterias && materiasExpanded ? 'true' : 'false');
     }
@@ -923,7 +924,9 @@
       applyTotalChipStyle(chipTotalHeader, colorClass, total >= TOTAL_META, true);
 
       const restantes = Math.max(0, TOTAL_META - total);
-      estadoGeneral.textContent = `Faltan ${restantes} creditos para la meta general`;
+      estadoGeneral.textContent = total >= TOTAL_META
+        ? 'Meta general cumplida.'
+        : `Faltan ${restantes} creditos para la meta general`;
       estadoGeneralHeader.textContent = total
         ? `Llevas ${total} creditos registrados.`
         : 'Aun no registraste materias.';
