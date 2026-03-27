@@ -614,6 +614,7 @@
           <p>Visualiza el avance minimo requerido en cada bloque de la carrera.</p>
         </div>
       </div>
+      <p class="muted" id="resumen-areas"></p>
       <div class="area-grid" id="areas"></div>
     </section>
 
@@ -649,15 +650,6 @@
   <script>
     const AREA_HUMANISTICAS = 'CIENCIAS SOCIALES Y HUMANISTICAS';
 
-    const AREA_ALIASES = {
-      [AREA_HUMANISTICAS]: AREA_HUMANISTICAS,
-      'CIENCIAS SOCIALES Y HUMANISTICAS': AREA_HUMANISTICAS,
-      'CIENCIAS SOCIALES Y HUMANÃSTICAS': AREA_HUMANISTICAS,
-      'CIENCIAS SOCIALES Y HUMANÃƒÂSTICAS': AREA_HUMANISTICAS,
-      'CIENCIAS SOCIALES Y HUMANÃƒÆ’Ã‚ÂSTICAS': AREA_HUMANISTICAS,
-      'CIENCIAS SOCIALES Y HUMANÃƒÆ’Ã†â€™Ãƒâ€šÃ‚ÂSTICAS': AREA_HUMANISTICAS,
-    };
-
     const AREAS = {
       Contabilidad: 130,
       Juridica: 40,
@@ -677,6 +669,7 @@
       [AREA_HUMANISTICAS]: 'Ciencias sociales y humanisticas',
       'Metodos cuantitativos': 'Metodos cuantitativos',
     };
+    const AREA_NORMALIZED_MAP = buildAreaNormalizedMap();
 
     const TOTAL_META = 360;
     const STORAGE_KEY = 'materiasContabilidadPublica';
@@ -695,6 +688,7 @@
     const estadoGeneral = document.getElementById('estado-general');
     const estadoGeneralHeader = document.getElementById('estado-general-header');
     const areasContainer = document.getElementById('areas');
+    const resumenAreas = document.getElementById('resumen-areas');
     const submitBtn = document.getElementById('submit-btn');
     const cancelEditBtn = document.getElementById('cancel-edit');
     const toggleMateriasBtn = document.getElementById('toggle-materias');
@@ -722,6 +716,7 @@
       } else {
         const id = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`;
         materias.push({ id, nombre, area, creditos });
+        materiasExpanded = true;
       }
 
       saveMaterias();
@@ -745,8 +740,44 @@
       cancelEditBtn.style.display = 'none';
     }
 
+    function normalizeText(value) {
+      return String(value || '')
+        .trim()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ')
+        .toUpperCase();
+    }
+
+    function buildAreaNormalizedMap() {
+      const map = {};
+
+      Object.keys(AREAS).forEach((area) => {
+        map[normalizeText(area)] = area;
+      });
+
+      Object.entries(AREA_LABELS).forEach(([area, label]) => {
+        map[normalizeText(label)] = area;
+      });
+
+      [
+        'CIENCIAS SOCIALES Y HUMANÍSTICAS',
+        'CIENCIAS SOCIALES Y HUMANISTICAS',
+        'CIENCIAS SOCIALES Y HUMANÃSTICAS',
+        'CIENCIAS SOCIALES Y HUMANÃƒÂSTICAS',
+        'CIENCIAS SOCIALES Y HUMANÃƒÆ’Ã‚ÂSTICAS',
+        'CIENCIAS SOCIALES Y HUMANÃƒÆ’Ã†â€™Ãƒâ€šÃ‚ÂSTICAS'
+      ].forEach((alias) => {
+        map[normalizeText(alias)] = AREA_HUMANISTICAS;
+      });
+
+      return map;
+    }
+
     function normalizeArea(area) {
-      return AREA_ALIASES[area] || area;
+      const trimmedArea = String(area || '').trim();
+      if (!trimmedArea) return '';
+      return AREA_NORMALIZED_MAP[normalizeText(trimmedArea)] || trimmedArea;
     }
 
     function getAreaLabel(area) {
@@ -911,6 +942,13 @@
 
     function renderTotal() {
       const total = materias.reduce((sum, item) => sum + Number(item.creditos || 0), 0);
+      const minimosCubiertos = Object.entries(AREAS).reduce((sum, [area, minimo]) => {
+        const obtenido = materias
+          .filter((item) => normalizeArea(item.area) === area)
+          .reduce((areaSum, item) => areaSum + Number(item.creditos || 0), 0);
+        return sum + Math.min(obtenido, minimo);
+      }, 0);
+      const creditosFlexibles = Math.max(0, total - minimosCubiertos);
       totalCreditos.textContent = total;
       const porcentaje = Math.min(100, Math.round((total / TOTAL_META) * 100));
       barraTotal.style.width = `${porcentaje}%`;
@@ -932,7 +970,7 @@
         : 'Aun no registraste materias.';
       detalleTotal.textContent = total >= TOTAL_META
         ? 'Meta general cumplida. Puedes sumar mas creditos para mejorar tu historial.'
-        : `Llevas ${total} creditos. El proximo cambio de color sucede a los ${nextUmbral(total)} creditos.`;
+        : `Llevas ${total} creditos. ${creditosFlexibles ? `${creditosFlexibles} cuentan como avance extra por encima de los minimos por area. ` : ''}El proximo cambio de color sucede a los ${nextUmbral(total)} creditos.`;
     }
 
     function applyTotalChipStyle(element, color, isComplete, isHeader = false) {
@@ -972,12 +1010,21 @@
         acc[area] = (acc[area] || 0) + Number(item.creditos || 0);
         return acc;
       }, {});
+      const minimoTotalAreas = Object.values(AREAS).reduce((sum, minimo) => sum + minimo, 0);
+      const minimosCubiertos = Object.entries(AREAS).reduce((sum, [area, minimo]) => {
+        const obtenido = acumulados[area] || 0;
+        return sum + Math.min(obtenido, minimo);
+      }, 0);
+      const creditosFlexibles = Math.max(0, materias.reduce((sum, item) => sum + Number(item.creditos || 0), 0) - minimosCubiertos);
+
+      resumenAreas.textContent = `Los minimos por area suman ${minimoTotalAreas} creditos. Los ${TOTAL_META - minimoTotalAreas} restantes pueden completarse en cualquier area; ${creditosFlexibles} ya cuentan como avance flexible.`;
 
       Object.entries(AREAS).forEach(([area, minimo]) => {
         const obtenido = acumulados[area] || 0;
         const porcentaje = Math.min(100, Math.round((obtenido / minimo) * 100));
         const cumplido = obtenido >= minimo;
         const restante = Math.max(0, minimo - obtenido);
+        const excedente = Math.max(0, obtenido - minimo);
 
         const card = document.createElement('div');
         card.className = 'area-card';
@@ -1010,7 +1057,9 @@
 
         const detail = document.createElement('p');
         detail.className = 'muted';
-        detail.textContent = `${obtenido} creditos acumulados - ${restante ? `faltan ${restante}` : 'objetivo alcanzado'}.`;
+        detail.textContent = restante
+          ? `${obtenido} creditos acumulados - faltan ${restante}.`
+          : `${obtenido} creditos acumulados - objetivo alcanzado${excedente ? `, ${excedente} extra suman al avance flexible` : ''}.`;
 
         card.appendChild(progressLabel);
         card.appendChild(progress);
