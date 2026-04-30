@@ -714,7 +714,7 @@
           item.id === editingId ? { ...item, nombre, area, creditos } : item
         );
       } else {
-        const id = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`;
+        const id = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
         materias.push({ id, nombre, area, creditos });
         materiasExpanded = true;
       }
@@ -936,8 +936,9 @@
         btn.addEventListener('click', () => deleteMateria(btn.dataset.delete))
       );
 
-      const materiaText = materias.length === 1 ? 'materia' : 'materias';
-      contadorMaterias.textContent = `${materias.length} ${materiaText} registradas`;
+      contadorMaterias.textContent = materias.length === 1
+        ? '1 materia registrada'
+        : `${materias.length} materias registradas`;
     }
 
     function renderTotal() {
