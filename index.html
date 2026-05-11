@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Seguimiento de Creditos - Contabilidad Publica</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2307111f'/%3E%3Cpath d='M18 40V18h28v22H18Zm6-16h16M24 31h16M24 38h10' stroke='%2338bdf8' stroke-width='4' stroke-linecap='round' fill='none'/%3E%3Cpath d='M20 48h24' stroke='%2322c55e' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E" />
   <style>
     :root {
       --bg: #07111f;
@@ -949,29 +950,39 @@
           .reduce((areaSum, item) => areaSum + Number(item.creditos || 0), 0);
         return sum + Math.min(obtenido, minimo);
       }, 0);
+      const minimosRequeridos = Object.values(AREAS).reduce((sum, minimo) => sum + minimo, 0);
+      const minimosCompletos = minimosCubiertos >= minimosRequeridos;
+      const metaCompleta = total >= TOTAL_META && minimosCompletos;
       const creditosFlexibles = Math.max(0, total - minimosCubiertos);
       totalCreditos.textContent = total;
       const porcentaje = Math.min(100, Math.round((total / TOTAL_META) * 100));
       barraTotal.style.width = `${porcentaje}%`;
 
-      const { colorClass, chipText } = totalStatus(total);
+      const { colorClass, chipText } = totalStatus(total, minimosCompletos);
       totalCreditos.style.color = colorClass;
       barraTotal.style.background = colorClass;
       chipTotal.textContent = chipText;
-      applyTotalChipStyle(chipTotal, colorClass, total >= TOTAL_META);
+      applyTotalChipStyle(chipTotal, colorClass, metaCompleta);
       chipTotalHeader.textContent = chipText;
-      applyTotalChipStyle(chipTotalHeader, colorClass, total >= TOTAL_META, true);
+      applyTotalChipStyle(chipTotalHeader, colorClass, metaCompleta, true);
 
       const restantes = Math.max(0, TOTAL_META - total);
-      estadoGeneral.textContent = total >= TOTAL_META
+      const faltanteAreas = Math.max(0, minimosRequeridos - minimosCubiertos);
+      estadoGeneral.textContent = metaCompleta
         ? 'Meta general cumplida.'
-        : `Faltan ${restantes} creditos para la meta general`;
+        : total >= TOTAL_META
+          ? `Faltan cubrir ${faltanteAreas} creditos minimos por area`
+          : `Faltan ${restantes} creditos para la meta general`;
       estadoGeneralHeader.textContent = total
-        ? `Llevas ${total} creditos registrados.`
+        ? metaCompleta
+          ? `Llevas ${total} creditos registrados y todos los minimos por area cubiertos.`
+          : `Llevas ${total} creditos registrados.`
         : 'Aun no registraste materias.';
-      detalleTotal.textContent = total >= TOTAL_META
+      detalleTotal.textContent = metaCompleta
         ? 'Meta general cumplida. Puedes sumar mas creditos para mejorar tu historial.'
-        : `Llevas ${total} creditos. ${creditosFlexibles ? `${creditosFlexibles} cuentan como avance extra por encima de los minimos por area. ` : ''}El proximo cambio de color sucede a los ${nextUmbral(total)} creditos.`;
+        : total >= TOTAL_META
+          ? `Llevas ${total} creditos, pero aun faltan ${faltanteAreas} creditos minimos por area. ${creditosFlexibles ? `${creditosFlexibles} creditos estan por encima de minimos ya cubiertos y no reemplazan esos faltantes. ` : ''}Completa las areas pendientes para cerrar la meta general.`
+          : `Llevas ${total} creditos. ${creditosFlexibles ? `${creditosFlexibles} cuentan como avance extra por encima de los minimos por area. ` : ''}El proximo cambio de color sucede a los ${nextUmbral(total)} creditos.`;
     }
 
     function applyTotalChipStyle(element, color, isComplete, isHeader = false) {
@@ -988,8 +999,9 @@
       element.style.setProperty('--stage-color', color);
     }
 
-    function totalStatus(total) {
-      if (total >= 360) return { colorClass: 'var(--success)', chipText: 'Meta general cumplida' };
+    function totalStatus(total, minimosCompletos) {
+      if (total >= 360 && minimosCompletos) return { colorClass: 'var(--success)', chipText: 'Meta general cumplida' };
+      if (total >= 360) return { colorClass: 'var(--warning)', chipText: 'Minimos por area pendientes' };
       if (total >= 270) return { colorClass: '#2563eb', chipText: 'Etapa 4: tramo final' };
       if (total >= 180) return { colorClass: '#0ea5e9', chipText: 'Etapa 3: buen ritmo' };
       if (total >= 90) return { colorClass: '#38bdf8', chipText: 'Etapa 2: vas avanzando' };
