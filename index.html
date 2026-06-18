@@ -729,7 +729,7 @@
           item.id === editingId ? { ...item, nombre, area, creditos } : item
         );
       } else {
-        const id = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+        const id = createMateriaId();
         materias.push({ id, nombre, area, creditos });
         materiasExpanded = true;
       }
@@ -867,10 +867,33 @@
         materias = Array.isArray(parsed)
           ? parsed.map(sanitizeMateria).filter(Boolean)
           : [];
+        materias = ensureUniqueMateriaIds(materias);
       } catch (error) {
         console.warn('No se pudieron cargar las materias guardadas.', error);
         materias = [];
       }
+    }
+
+    function ensureUniqueMateriaIds(items) {
+      const seenIds = new Set();
+
+      return items.map((item) => {
+        if (!seenIds.has(item.id)) {
+          seenIds.add(item.id);
+          return item;
+        }
+
+        let id = createMateriaId();
+        while (seenIds.has(id)) {
+          id = createMateriaId();
+        }
+        seenIds.add(id);
+        return { ...item, id };
+      });
+    }
+
+    function createMateriaId() {
+      return globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
     }
 
     function render() {
@@ -1018,8 +1041,8 @@
     }
 
     function totalStatus(total, minimosCompletos) {
-      if (total >= 360 && minimosCompletos) return { colorClass: 'var(--success)', chipText: 'Meta general cumplida' };
-      if (total >= 360) return { colorClass: 'var(--warning)', chipText: 'Minimos por area pendientes' };
+      if (total >= TOTAL_META && minimosCompletos) return { colorClass: 'var(--success)', chipText: 'Meta general cumplida' };
+      if (total >= TOTAL_META) return { colorClass: 'var(--warning)', chipText: 'Minimos por area pendientes' };
       if (total >= 270) return { colorClass: '#2563eb', chipText: 'Etapa 4: tramo final' };
       if (total >= 180) return { colorClass: '#0ea5e9', chipText: 'Etapa 3: buen ritmo' };
       if (total >= 90) return { colorClass: '#38bdf8', chipText: 'Etapa 2: vas avanzando' };
